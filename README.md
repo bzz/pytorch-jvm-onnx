@@ -55,12 +55,12 @@ https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
 In: trained `model.pt`
 Out: `model.onnx`
 
-`./export_model.py --model model.pt --out model.onnx`
+`./onnx_export.py --model model.pt --out model.onnx`
 
 
 ### ONNX inference in Python
 
-`./predict_onnx.py --model model.onnx < `
+`./onnx_predict.py --model model.onnx < single_example.txt`
 
 
 ## ONNX inference in JVM

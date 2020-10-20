@@ -31,12 +31,14 @@ def main():
         x = list(map(lambda x: float(x.split(":")[1]), line.strip().split(" ")))
         x = torch.from_numpy(np.array([x])).float()
 
+        print(f"input: {x.size()}")
         prediction = model.forward(x)
 
+        print(f"output: {prediction.data}")
         
         k = 3
         probs, classes = torch.topk(prediction, k=k, dim=1)
-        #p = list(zip(classes.data[0].tolist(), probs.data[0].tolist()))
+        #classes_prob = list(zip(classes.data[0].tolist(), probs.data[0].tolist()))
         print(f"\nTop {k} predicted class: {classes.data[0].tolist()}")
 
         p = np.argwhere(prediction.detach()[0].numpy() > 0)
