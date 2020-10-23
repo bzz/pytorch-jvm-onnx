@@ -75,6 +75,7 @@ Out: `model.onnx`
 
 ## ONNX inference in JVM
 
+Using JNI-based [Java API of ONNX JVM Runtime](https://github.com/microsoft/onnxruntime/blob/master/docs/Java_API.md#getting-started)
 
 ```
 cp model.onnx onnx-predict-java/src/main/resources/
@@ -83,3 +84,7 @@ cd onnx-predict-java
 
 java -jar ./build/libs/onnx-predict-java.jar
 ```
+
+ * see [this](https://github.com/microsoft/onnxruntime/pull/2215) for discussion on JNI and multipel classloader support
+ * [ONNX Runtime](https://search.maven.org/artifact/com.microsoft.onnxruntime/onnxruntime/1.5.2/jar) dependency is 92Mb
+ 
