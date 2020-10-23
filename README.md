@@ -1,13 +1,23 @@
 # Train PyTorch model + JVM inference \w ONNX
 
+This is just an illustrative example of preparing a PyTorch model for beeing used from JVM environment.
 
 ## The Problem and the data
 
-Multi-class classification \w structured data.
-<input data format>
+Predict a group of the Yest gene 
+ - [paper](https://papers.nips.cc/paper/1964-a-kernel-method-for-multi-labelled-classification.pdf)
+ - [dataset](https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multilabel.html#yeast)
+
+A Multi-class classification \w structured data in libsvm format.
+ * classes: 14
+ * features: 103
+ * data points: 1,500 (train) / 917 (test)
+
+## Exploration
+
+TODO: add a notebook checking the dataset for imbalanced classes.
 
 ## Train
-
 
 ### PyTorch
 
@@ -31,7 +41,7 @@ Does not include logging, early stopping, model checkpointing and lots of other 
 But PyTorch does include all that, and many more for free :tada:
 
 ```
-./train.py --out model.pt
+./train_ptl.py --out model.pt
 
 # tensorboard logs
 open http://localhost:6667
