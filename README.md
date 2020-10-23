@@ -67,7 +67,9 @@ Out: `model.onnx`
 
 
 ```
-./gradlew build
+cp model.onnx onnx-predict-java/src/main/resources/
+cd onnx-predict-java
+./gradlew jar
 
-java -jar target/inference.jar --model model.onnx < [data]
+java -jar ./build/libs/onnx-predict-java.jar
 ```
