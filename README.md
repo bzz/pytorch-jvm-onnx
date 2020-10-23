@@ -27,6 +27,11 @@ virtualenv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 
+# get the data
+wget 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multilabel/yeast_train.svm.bz2'
+wget 'https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/multilabel/yeast_test.svm.bz2'
+bzip2 -d *.bz2
+
 # test the dataloader
 ./train.py
 
@@ -87,4 +92,3 @@ java -jar ./build/libs/onnx-predict-java.jar
 
  * see [this](https://github.com/microsoft/onnxruntime/pull/2215) for discussion on JNI and multipel classloader support
  * [ONNX Runtime](https://search.maven.org/artifact/com.microsoft.onnxruntime/onnxruntime/1.5.2/jar) dependency is 92Mb
- 
