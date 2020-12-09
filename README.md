@@ -109,16 +109,19 @@ java -jar ./build/libs/onnx-predict-java.jar  < single_example.txt`
 ## Reduce the model size
 
  - fp16 [quantization-aware training \w PTL](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html#precision)
+ - [hyperparameter search \w PTL](https://williamfalcon.github.io/test-tube/hyperparameter_optimization/HyperOptArgumentParser/) for layers dimensions
  - 8bit [dynamic quantilization](https://pytorch.org/blog/introduction-to-quantization-on-pytorch/) \w `torch.quantization.quantize_dynamic`
-
+   ([tutorial](https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html#apply-the-dynamic-quantization))
+ - pruning \w `torch.nn.utils.prune`
+   ([tutorial](https://pytorch.org/tutorials/intermediate/pruning_tutorial.html#global-pruning))
 
 Model | Size | Train time
 ------| ---- | ----------
 fp32  | 52kb |
 onnx  | 48kb |
+fp32+dim hyperopt | |
 fp16  | ? |
 8 bit | ? |
-vw    | ? |
 
 
  ## Interpret the model
