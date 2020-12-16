@@ -49,23 +49,23 @@ bzip2 -d *.bz2
 ./train.py
 
 # train the model
-./train.py --out model.pt
+./train.py --model model.pt
 ```
 
 Does not include logging, early stopping, model checkpointing and lots of other nice goodies.
 
 ### PyTorch Lightning
 
-But PyTorch does include all that, and many more for free :tada:
+But [PyTorch Lightning](https://pytorch-lightning.readthedocs.io/en/stable/introduction_guide.html#introduction-guide) does include all that, and many more for free :tada:
 
 ```
-./train_ptl.py --out models/ptl/model.pt
+./train_ptl.py --model models/ptl/model.pt
 ```
 
 Monitor the progess \w tensorboard
 
 ```
-tensorboard --logdir models/ptl
+tensorboard --logdir lightning_logs/
 open http://localhost:6667
 ```
 
@@ -78,6 +78,10 @@ PyTorch inference in Python
 ```
 
 Correct anser is `2, 3`.
+
+### Libtorch JNI bindings
+TODO
+https://github.com/pytorch/java-demo/blob/master/src/main/java/demo/App.java
 
 ### ONNX export the model
 https://pytorch.org/tutorials/advanced/super_resolution_with_onnxruntime.html
@@ -108,20 +112,30 @@ java -jar ./build/libs/onnx-predict-java.jar  < single_example.txt`
 
 ## Reduce the model size
 
+Explore different NN architectures
+ - Deep & Cross Netowrk (DCN)
+   [paper](https://arxiv.org/abs/2008.13535), [posts](https://blog.tensorflow.org/2020/11/tensorflow-recommenders-scalable-retrieval-feature-interaction-modelling.html), [tutorial](https://www.tensorflow.org/recommenders/examples/dcn), [PyTorch impl](https://github.com/shenweichen/DeepCTR-Torch/blob/6eec1edaf0e1cc206998a57a348539d287d7c351/deepctr_torch/layers/interaction.py#L406)
+
+Architecture-neutural optimizations
  - fp16 [quantization-aware training \w PTL](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html#precision)
  - [hyperparameter search \w PTL](https://williamfalcon.github.io/test-tube/hyperparameter_optimization/HyperOptArgumentParser/) for layers dimensions
  - 8bit [dynamic quantilization](https://pytorch.org/blog/introduction-to-quantization-on-pytorch/) \w `torch.quantization.quantize_dynamic`
    ([tutorial](https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html#apply-the-dynamic-quantization))
  - pruning \w `torch.nn.utils.prune`
    ([tutorial](https://pytorch.org/tutorials/intermediate/pruning_tutorial.html#global-pruning))
+- bayesian hyperparameter optimization \w [Optuna](https://github.com/optuna/optuna/blob/master/examples/pytorch_lightning_simple.py), estimating importance
 
-Model | Size | Train time
-------| ---- | ----------
-fp32  | 52kb |
-onnx  | 48kb |
-fp32+dim hyperopt | |
-fp16  | ? |
-8 bit | ? |
+
+
+Model     | Params | On disk | Train time
+----------| ------ | ------- | ----------
+fp32 mlp  |        | 52kb |
+onnx mlp  |        | 48kb |
+fp16 mlp  |        | ? |
+8bit mlp  |        | ? |
+fp32 mlp+hyperopt| | ? |
+fp32 dcn  |        | ? |
+
 
 
  ## Interpret the model
@@ -129,10 +143,12 @@ fp16  | ? |
  How important are some of the features?
  Explain, how it’s weights contribute towards it’s final decision.
 
- https://captum.ai/
+ - Primary attribution \w integrated gradients for feature importance
+   using https://captum.ai
 
 
  ## Optimizations
 
   - [PTL profiler](https://pytorch-lightning.readthedocs.io/en/latest/profiler.html#enable-simple-profiling)
+  - new [PyTorch profiler](https://pytorch.org/tutorials/recipes/recipes/profiler.html)
   - is model execution time dominated by loading weights from memory or computing the matrix multiplications?
