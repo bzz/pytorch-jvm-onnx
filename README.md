@@ -69,6 +69,9 @@ tensorboard --logdir lightning_logs/
 open http://localhost:6667
 ```
 
+3 epochs of 400it/s result in precision _0.768_ when the original paper has _0.762_.
+
+
 ## Predict
 
 PyTorch inference in Python

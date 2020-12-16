@@ -33,8 +33,8 @@ class YestMultiClassifier(pl.LightningModule):
     def __init__(self, n: int):
         super().__init__()
         self.linear = nn.Sequential(nn.Linear(103, n), nn.ReLU(), nn.Linear(n, 14))
-        self.train_acc = pl.metrics.Accuracy()
-        self.val_acc = pl.metrics.Accuracy()
+        self.train_prc = pl.metrics.Precision(num_classes=14, multilabel=True)
+        self.val_prc = pl.metrics.Precision(num_classes=14, multilabel=True)
 
     def forward(self, x):
         return self.linear(x)
@@ -45,8 +45,8 @@ class YestMultiClassifier(pl.LightningModule):
         loss = F.binary_cross_entropy_with_logits(y_hat, y)
         self.log('train_loss', loss)
 
-        self.train_acc(y_hat, y)
-        self.log('train_acc', self.train_acc, on_epoch=True, on_step=False)
+        self.train_prc(y_hat, y)
+        self.log('train_prc', self.train_prc, on_epoch=True, on_step=False)
         return loss
 
     def validation_step(self, batch, batch_idx):
@@ -55,8 +55,8 @@ class YestMultiClassifier(pl.LightningModule):
         loss = F.binary_cross_entropy_with_logits(y_hat, y)
         self.log('val_loss', loss)
 
-        self.val_acc(y_hat, y)
-        self.log('val_acc', self.val_acc, on_epoch=True, on_step=False)
+        self.val_prc(y_hat, y)
+        self.log('val_prc', self.val_prc, on_epoch=True, on_step=False)
 
     def configure_optimizers(self):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
@@ -79,7 +79,7 @@ def main():
     val = LibSVMDataset(args.val)
 
     model = YestMultiClassifier(args.hidden)
-    trainer = pl.Trainer(callbacks=[EarlyStopping(monitor='val_acc')]) #fast_dev_run=True,
+    trainer = pl.Trainer(callbacks=[EarlyStopping(monitor='val_prc')]) #fast_dev_run=True,
     trainer.fit(model,
         DataLoader(train, batch_size=10, shuffle=True),
         DataLoader(val, batch_size=10)
