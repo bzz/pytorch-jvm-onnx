@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-import argparse
 import os
 
 import torch
@@ -11,7 +10,9 @@ from torch.utils.data import DataLoader
 
 from sklearn.datasets import load_svmlight_file
 import pytorch_lightning as pl
+from pytorch_lightning import loggers as pl_loggers
 from pytorch_lightning.callbacks.early_stopping import EarlyStopping
+from test_tube import HyperOptArgumentParser
 
 
 class LibSVMDataset(ds.Dataset):
@@ -30,9 +31,14 @@ class LibSVMDataset(ds.Dataset):
         return x, y
 
 class YestMultiClassifier(pl.LightningModule):
-    def __init__(self, n: int):
+    def __init__(self, layer_size: int, nb_layers: int):
         super().__init__()
-        self.linear = nn.Sequential(nn.Linear(103, n), nn.ReLU(), nn.Linear(n, 14))
+        self.linear = nn.Sequential(
+            nn.Linear(103, layer_size),
+            nn.ReLU(),
+            # *[nn.Linear(layer_size, layer_size) for i in range(nb_layers-2)],
+            nn.Linear(layer_size, 14)
+        )
         self.train_prc = pl.metrics.Precision(num_classes=14, multilabel=True)
         self.val_prc = pl.metrics.Precision(num_classes=14, multilabel=True)
 
@@ -62,30 +68,38 @@ class YestMultiClassifier(pl.LightningModule):
         optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
         return optimizer
 
+def train_main(args):
+    train = LibSVMDataset(args.train)
+    val = LibSVMDataset(args.val)
+
+    model = YestMultiClassifier(args.layer_size, args.nb_layers)
+
+    # log = pl_loggers.TestTubeLogger('tt_logs', name="nb_layers")
+    log = pl_loggers.TensorBoardLogger('lightning_logs')
+    log.log_hyperparams(args)
+
+    trainer = pl.Trainer(logger=log, callbacks=[EarlyStopping(monitor='val_prc')]) #fast_dev_run=True,
+    trainer.fit(model,
+        DataLoader(train, batch_size=10, shuffle=True),
+        DataLoader(val, batch_size=10)
+    )
+    #torch.save(model.state_dict(), args.model)
 
 def main():
-    parser = argparse.ArgumentParser(
+    parser = HyperOptArgumentParser(
         description='Train a PyTorch Lightning model on Yest dataset',
+        strategy='random_search'
     )
+
+    parser.opt_list('--nb_layers', default=2, type=int, tunable=False, options=[2, 4, 8])
+    parser.opt_range('--layer_size', default=20, type=int, tunable=False, low=10, high=200, nb_samples=10, help="size of the hidden layer")
 
     parser.add_argument('--model', default="model.ptl", help="path to save the model")
     parser.add_argument('--train', default="yeast_train.svm", help="path to the training data")
     parser.add_argument('--val', default="yeast_test.svm", help="path to the training data")
 
-    parser.add_argument('--hidden', type=int, default=100, help="size of the hidden layer")
-    args = parser.parse_args()
-
-    train = LibSVMDataset(args.train)
-    val = LibSVMDataset(args.val)
-
-    model = YestMultiClassifier(args.hidden)
-    trainer = pl.Trainer(callbacks=[EarlyStopping(monitor='val_prc')]) #fast_dev_run=True,
-    trainer.fit(model,
-        DataLoader(train, batch_size=10, shuffle=True),
-        DataLoader(val, batch_size=10)
-    )
-
-    torch.save(model.state_dict(), args.model)
+    hparams = parser.parse_args()
+    hparams.optimize_parallel_cpu(train_main, nb_trials=20, nb_workers=8)
 
 
 if __name__ == "__main__":

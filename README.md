@@ -120,7 +120,7 @@ Explore different NN architectures
    [paper](https://arxiv.org/abs/2008.13535), [posts](https://blog.tensorflow.org/2020/11/tensorflow-recommenders-scalable-retrieval-feature-interaction-modelling.html), [tutorial](https://www.tensorflow.org/recommenders/examples/dcn), [PyTorch impl](https://github.com/shenweichen/DeepCTR-Torch/blob/6eec1edaf0e1cc206998a57a348539d287d7c351/deepctr_torch/layers/interaction.py#L406)
 
 Architecture-neutural optimizations
- - fp16 [quantization-aware training \w PTL](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html#precision)
+ - fp16 [quantization-aware training \w PTL](https://pytorch-lightning.readthedocs.io/en/latest/trainer.html#precision) (GPU-only)
  - [hyperparameter search \w PTL](https://williamfalcon.github.io/test-tube/hyperparameter_optimization/HyperOptArgumentParser/) for layers dimensions
  - 8bit [dynamic quantilization](https://pytorch.org/blog/introduction-to-quantization-on-pytorch/) \w `torch.quantization.quantize_dynamic`
    ([tutorial](https://pytorch.org/tutorials/intermediate/dynamic_quantization_bert_tutorial.html#apply-the-dynamic-quantization))
